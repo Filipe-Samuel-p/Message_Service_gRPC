@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_whatsapp_grcp
+    environment:
+      POSTGRES_USER: postgres_whatsapp
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: whatsapp_grpc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:

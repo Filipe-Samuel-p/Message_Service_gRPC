@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package chatMessage;
+
+option go_package = "./src/pb/chatMessage/";
+
+import "google/protobuf/timestamp.proto";
+
+enum MessageStatus {
+    SENT = 0;
+    DELIVERED = 1;
+    READ = 2;
+}
+
+message User {
+    string phone = 1;
+    string name = 2;
+    string nickname = 3; 
+}
+
+message Message {
+    string id = 1; 
+    string sender = 2;
+    string receiver = 3;
+    string content = 4;
+    google.protobuf.Timestamp timestamp = 5;
+    MessageStatus status = 6;
+}
+
+message RegisterResponse {
+    bool success = 1;
+    string message_info = 2;
+}
+
+message SendMessageResponse {
+    bool success = 1;
+    string message_id = 2;
+}
+
+message StreamRequest {
+    string phone = 1; 
+}
+
+message UpdateStatusRequest {
+    string message_id = 1;
+    MessageStatus status = 2;
+}
+
+message UpdateStatusResponse {
+    bool success = 1;
+}
+
+message GetHistoryRequest {
+    string user_phone = 1;
+    string contact_phone = 2;
+}
+
+message HistoryResponse {
+    repeated Message messages = 1; 
+}
+
+service ChatMessageService {
+    rpc Register(User) returns (RegisterResponse);
+
+    rpc SendMessage(Message) returns (SendMessageResponse);
+
+    rpc ChatStream(StreamRequest) returns (stream Message);
+
+    rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse);
+    
+    rpc GetHistory(GetHistoryRequest) returns (HistoryResponse);
+}
