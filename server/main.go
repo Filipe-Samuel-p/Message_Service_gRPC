@@ -16,18 +16,6 @@ func main() {
 
 	defer db.Close()
 
-	/* repository := *&storage.Repository{DB: db}
-
-	newUser := domain.User{
-		Name:     "Filipe Samuel",
-		NickName: "Samuca",
-	}
-
-	user, err := repository.SaveUser(newUser)
-	if err != nil {
-		fmt.Print("Errrorrr")
-	}
-
-	fmt.Print(user) */
+	/*repository := &storage.Repository{DB: db} */
 
 }

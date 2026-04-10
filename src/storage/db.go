@@ -35,12 +35,17 @@ func createTables(db *sqlx.DB) error {
 			nick_name TEXT NOT NULL
 		);
 
-		CREATE TYPE message_status AS ENUM ('sent', 'delivered', 'read');
+		DO $$ 
+		BEGIN
+    		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'message_status') THEN
+        	CREATE TYPE message_status AS ENUM ('sent', 'delivered', 'read');
+    		END IF;
+		END $$;
 
 		CREATE TABLE IF NOT EXISTS tb_messages (
-			message_id TEXT PRIMARY KEY,
-			sender     TEXT NOT NULL REFERENCES tb_users(user_id),
-			receiver   TEXT NOT NULL REFERENCES tb_users(user_id),
+			message_id UUID PRIMARY KEY,
+			sender     UUID NOT NULL REFERENCES tb_users(user_id),
+			receiver   UUID NOT NULL REFERENCES tb_users(user_id),
 			content    TEXT NOT NULL,
 			time_stamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 			status     message_status NOT NULL DEFAULT 'sent'

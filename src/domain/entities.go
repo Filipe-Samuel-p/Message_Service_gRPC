@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type MessageStatus int
+type MessageStatus string
 
 const (
-	Sent MessageStatus = iota
-	Delivered
-	Read
+	Sent      MessageStatus = "sent"
+	Delivered MessageStatus = "delivered"
+	Read      MessageStatus = "read"
 )
 
 type User struct {
@@ -21,7 +21,7 @@ type User struct {
 }
 
 type Message struct {
-	MessageID string        `db:"message_id"`
+	MessageID uuid.UUID     `db:"message_id"`
 	Sender    string        `db:"sender"`
 	Receiver  string        `db:"receiver"`
 	Content   string        `db:"content"`
