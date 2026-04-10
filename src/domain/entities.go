@@ -2,6 +2,8 @@ package domain
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type MessageStatus int
@@ -13,9 +15,9 @@ const (
 )
 
 type User struct {
-	UserID   string `db:"user_id"`
-	Name     string `db:"name"`
-	NickName string `db:"nick_name"`
+	UserID   uuid.UUID `db:"user_id"`
+	Name     string    `db:"name"`
+	NickName string    `db:"nick_name"`
 }
 
 type Message struct {
