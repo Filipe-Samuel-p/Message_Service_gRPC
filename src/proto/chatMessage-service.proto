@@ -13,9 +13,10 @@ enum MessageStatus {
 }
 
 message User {
-    string phone = 1;
-    string name = 2;
-    string nickname = 3; 
+    string id = 1;
+    string phone = 2;
+    string name = 3;
+    string nickname = 4; 
 }
 
 message Message {
@@ -30,6 +31,7 @@ message Message {
 message RegisterResponse {
     bool success = 1;
     string message_info = 2;
+    string user_id = 3;
 }
 
 message SendMessageResponse {
@@ -38,7 +40,7 @@ message SendMessageResponse {
 }
 
 message StreamRequest {
-    string phone = 1; 
+    string user_id = 1; 
 }
 
 message UpdateStatusRequest {

@@ -31,6 +31,7 @@ func createTables(db *sqlx.DB) error {
 	schema := `
 		CREATE TABLE IF NOT EXISTS tb_users (
 			user_id   UUID PRIMARY KEY,
+			phone     TEXT NOT NULL UNIQUE,
 			name      TEXT NOT NULL,
 			nick_name TEXT NOT NULL
 		);
