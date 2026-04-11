@@ -16,14 +16,15 @@ const (
 
 type User struct {
 	UserID   uuid.UUID `db:"user_id"`
+	Phone    string    `db:"phone"`
 	Name     string    `db:"name"`
 	NickName string    `db:"nick_name"`
 }
 
 type Message struct {
 	MessageID uuid.UUID     `db:"message_id"`
-	Sender    string        `db:"sender"`
-	Receiver  string        `db:"receiver"`
+	Sender    uuid.UUID     `db:"sender"`
+	Receiver  uuid.UUID     `db:"receiver"`
 	Content   string        `db:"content"`
 	Timestamp time.Time     `db:"time_stamp"`
 	Status    MessageStatus `db:"status"`

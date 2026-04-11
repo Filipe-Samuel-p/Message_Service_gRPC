@@ -73,9 +73,10 @@ func (MessageStatus) EnumDescriptor() ([]byte, []int) {
 
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Nickname      string                 `protobuf:"bytes,3,opt,name=nickname,proto3" json:"nickname,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Phone         string                 `protobuf:"bytes,2,opt,name=phone,proto3" json:"phone,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Nickname      string                 `protobuf:"bytes,4,opt,name=nickname,proto3" json:"nickname,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -108,6 +109,13 @@ func (x *User) ProtoReflect() protoreflect.Message {
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
 	return file_src_proto_chatMessage_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *User) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 func (x *User) GetPhone() string {
@@ -219,6 +227,7 @@ type RegisterResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
 	MessageInfo   string                 `protobuf:"bytes,2,opt,name=message_info,json=messageInfo,proto3" json:"message_info,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -263,6 +272,13 @@ func (x *RegisterResponse) GetSuccess() bool {
 func (x *RegisterResponse) GetMessageInfo() string {
 	if x != nil {
 		return x.MessageInfo
+	}
+	return ""
+}
+
+func (x *RegisterResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -321,7 +337,7 @@ func (x *SendMessageResponse) GetMessageId() string {
 
 type StreamRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -356,9 +372,9 @@ func (*StreamRequest) Descriptor() ([]byte, []int) {
 	return file_src_proto_chatMessage_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *StreamRequest) GetPhone() string {
+func (x *StreamRequest) GetUserId() string {
 	if x != nil {
-		return x.Phone
+		return x.UserId
 	}
 	return ""
 }
@@ -559,27 +575,29 @@ var File_src_proto_chatMessage_service_proto protoreflect.FileDescriptor
 
 const file_src_proto_chatMessage_service_proto_rawDesc = "" +
 	"\n" +
-	"#src/proto/chatMessage-service.proto\x12\vchatMessage\x1a\x1fgoogle/protobuf/timestamp.proto\"L\n" +
-	"\x04User\x12\x14\n" +
-	"\x05phone\x18\x01 \x01(\tR\x05phone\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
-	"\bnickname\x18\x03 \x01(\tR\bnickname\"\xd5\x01\n" +
+	"#src/proto/chatMessage-service.proto\x12\vchatMessage\x1a\x1fgoogle/protobuf/timestamp.proto\"\\\n" +
+	"\x04User\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05phone\x18\x02 \x01(\tR\x05phone\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1a\n" +
+	"\bnickname\x18\x04 \x01(\tR\bnickname\"\xd5\x01\n" +
 	"\aMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06sender\x18\x02 \x01(\tR\x06sender\x12\x1a\n" +
 	"\breceiver\x18\x03 \x01(\tR\breceiver\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\x128\n" +
 	"\ttimestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x122\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x1a.chatMessage.MessageStatusR\x06status\"O\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x1a.chatMessage.MessageStatusR\x06status\"h\n" +
 	"\x10RegisterResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12!\n" +
-	"\fmessage_info\x18\x02 \x01(\tR\vmessageInfo\"N\n" +
+	"\fmessage_info\x18\x02 \x01(\tR\vmessageInfo\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\"N\n" +
 	"\x13SendMessageResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tR\tmessageId\"%\n" +
-	"\rStreamRequest\x12\x14\n" +
-	"\x05phone\x18\x01 \x01(\tR\x05phone\"h\n" +
+	"message_id\x18\x02 \x01(\tR\tmessageId\"(\n" +
+	"\rStreamRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"h\n" +
 	"\x13UpdateStatusRequest\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x122\n" +

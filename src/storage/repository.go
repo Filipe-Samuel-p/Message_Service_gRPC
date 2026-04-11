@@ -18,16 +18,24 @@ func (r *Repository) SaveUser(user domain.User) (domain.User, error) {
 	user_id, err := uuid.NewRandom()
 	if err != nil {
 		return domain.User{}, fmt.Errorf("Error new uuid. Error: %w", err)
-		// O "fmt.Errorf" apenas cria um valor do tipo error, mas precisa retornar ele, se não, não serve pra nada
 	}
 
 	user.UserID = user_id
 
-	_, err = r.DB.NamedExec("INSERT INTO tb_users (user_id, name, nick_name) VALUES (:user_id, :name,:nick_name)", user)
+	_, err = r.DB.NamedExec("INSERT INTO tb_users (user_id, phone, name, nick_name) VALUES (:user_id, :phone, :name, :nick_name)", user)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("error saving user on DB: %w", err)
 	}
 
+	return user, nil
+}
+
+func (r *Repository) GetUserByID(id uuid.UUID) (domain.User, error) {
+	var user domain.User
+	err := r.DB.Get(&user, "SELECT * FROM tb_users WHERE user_id = $1", id)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("error getting user by id: %w", err)
+	}
 	return user, nil
 }
 
