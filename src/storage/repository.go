@@ -62,18 +62,22 @@ func (r *Repository) SaveMessage(message domain.Message) (domain.Message, error)
 
 }
 
-func (r *Repository) UpdateMessageStatus(messageID uuid.UUID, status domain.MessageStatus) error {
-	query := ` UPDATE tb_messages 
-			   SET status = $1
-			   WHERE message_id = $2
-	`
+func (r *Repository) UpdateMessageStatus(messageID uuid.UUID, status domain.MessageStatus) (uuid.UUID, error) {
+	var senderID uuid.UUID
 
-	_, err := r.DB.Exec(query, status, messageID)
+	query := `
+        UPDATE tb_messages 
+        SET status = $1
+        WHERE message_id = $2
+        RETURNING sender_id
+    `
+
+	err := r.DB.QueryRow(query, status, messageID).Scan(&senderID)
 	if err != nil {
-		return fmt.Errorf("Error on Update status on DB: %w", err)
+		return uuid.Nil, fmt.Errorf("error updating status on DB: %w", err)
 	}
-	return nil
 
+	return senderID, nil
 }
 
 func (r *Repository) GetHistory(userID_A uuid.UUID, userID_B uuid.UUID) ([]domain.Message, error) {
