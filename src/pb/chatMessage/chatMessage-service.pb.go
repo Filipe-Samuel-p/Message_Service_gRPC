@@ -477,8 +477,8 @@ func (x *UpdateStatusResponse) GetSuccess() bool {
 
 type GetHistoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserPhone     string                 `protobuf:"bytes,1,opt,name=user_phone,json=userPhone,proto3" json:"user_phone,omitempty"`
-	ContactPhone  string                 `protobuf:"bytes,2,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"`
+	SenderId      string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	ReceiverId    string                 `protobuf:"bytes,2,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -513,16 +513,16 @@ func (*GetHistoryRequest) Descriptor() ([]byte, []int) {
 	return file_src_proto_chatMessage_service_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *GetHistoryRequest) GetUserPhone() string {
+func (x *GetHistoryRequest) GetSenderId() string {
 	if x != nil {
-		return x.UserPhone
+		return x.SenderId
 	}
 	return ""
 }
 
-func (x *GetHistoryRequest) GetContactPhone() string {
+func (x *GetHistoryRequest) GetReceiverId() string {
 	if x != nil {
-		return x.ContactPhone
+		return x.ReceiverId
 	}
 	return ""
 }
@@ -603,11 +603,11 @@ const file_src_proto_chatMessage_service_proto_rawDesc = "" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x122\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x1a.chatMessage.MessageStatusR\x06status\"0\n" +
 	"\x14UpdateStatusResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"W\n" +
-	"\x11GetHistoryRequest\x12\x1d\n" +
-	"\n" +
-	"user_phone\x18\x01 \x01(\tR\tuserPhone\x12#\n" +
-	"\rcontact_phone\x18\x02 \x01(\tR\fcontactPhone\"C\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"Q\n" +
+	"\x11GetHistoryRequest\x12\x1b\n" +
+	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12\x1f\n" +
+	"\vreceiver_id\x18\x02 \x01(\tR\n" +
+	"receiverId\"C\n" +
 	"\x0fHistoryResponse\x120\n" +
 	"\bmessages\x18\x01 \x03(\v2\x14.chatMessage.MessageR\bmessages*2\n" +
 	"\rMessageStatus\x12\b\n" +

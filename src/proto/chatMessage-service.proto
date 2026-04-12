@@ -53,8 +53,8 @@ message UpdateStatusResponse {
 }
 
 message GetHistoryRequest {
-    string user_phone = 1;
-    string contact_phone = 2;
+    string sender_id = 1;
+    string receiver_id = 2;
 }
 
 message HistoryResponse {
