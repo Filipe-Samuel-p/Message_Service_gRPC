@@ -2,7 +2,9 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 	"whatsapp_gRCP/src/cache"
@@ -22,9 +24,39 @@ type ChatMessageServer struct {
 	chatMessage.UnimplementedChatMessageServiceServer
 }
 
+func NewChatMessageServer(repository *storage.Repository, redisCache *cache.RedisClient) *ChatMessageServer {
+	return &ChatMessageServer{
+		repo:        repository,
+		cache:       redisCache,
+		connections: make(map[uuid.UUID]chatMessage.ChatMessageService_ChatStreamServer),
+	}
+}
+
 func (s *ChatMessageServer) Register(ctx context.Context, user *chatMessage.User) (*chatMessage.RegisterResponse, error) {
 
-	var err error
+	existingUser, err := s.repo.GetUserByPhone(user.Phone)
+
+	if err == nil {
+		return &chatMessage.RegisterResponse{
+			Success:     true,
+			MessageInfo: "Usuário já existe. Bem-vindo de volta!",
+			UserId:      existingUser.UserID.String(),
+		}, nil
+	}
+
+	if user.Name == "" {
+		return &chatMessage.RegisterResponse{
+			Success:     false,
+			MessageInfo: "USER_NOT_FOUND",
+		}, nil
+	}
+
+	if err != sql.ErrNoRows {
+		return &chatMessage.RegisterResponse{
+			Success:     false,
+			MessageInfo: "Erro interno ao verificar usuário no banco de dados.",
+		}, nil
+	}
 
 	newUser := domain.User{
 		Phone:    user.Phone,
@@ -43,7 +75,7 @@ func (s *ChatMessageServer) Register(ctx context.Context, user *chatMessage.User
 	return &chatMessage.RegisterResponse{
 		Success:     true,
 		MessageInfo: "Usuário cadastrado com sucesso!",
-		UserId:      uuid.NewString(),
+		UserId:      newUser.UserID.String(),
 	}, nil
 }
 
@@ -51,27 +83,27 @@ func (s *ChatMessageServer) SendMessage(ctx context.Context, message *chatMessag
 
 	senderId, err := uuid.Parse(message.Sender)
 	if err != nil {
-		return nil, fmt.Errorf("Error on parse senderId: %w", err)
+		return nil, fmt.Errorf("erro no parse do senderId: %w", err)
 	}
 
 	receiverId, err := uuid.Parse(message.Receiver)
 	if err != nil {
-		return nil, fmt.Errorf("Error on parse receiverId: %w", err)
+		return nil, fmt.Errorf("erro no parse do receiverId: %w", err)
 	}
+
+	senderUser, _ := s.repo.GetUserByID(senderId)
 
 	newMessage := domain.Message{
 		Sender:    senderId,
 		Receiver:  receiverId,
 		Content:   message.Content,
-		Timestamp: message.Timestamp.AsTime(),
+		Timestamp: time.Now().UTC(),
 	}
 
 	newMessage, err = s.repo.SaveMessage(newMessage)
 	if err != nil {
-		return &chatMessage.SendMessageResponse{
-			Success:   false,
-			MessageId: newMessage.MessageID.String(),
-		}, nil
+		fmt.Printf("ERRO POSTGRES: %v\n", err)
+		return &chatMessage.SendMessageResponse{Success: false}, nil
 	}
 
 	isOnline, _ := s.cache.IsOnline(ctx, receiverId)
@@ -82,16 +114,15 @@ func (s *ChatMessageServer) SendMessage(ctx context.Context, message *chatMessag
 		s.mu.RUnlock()
 
 		if connected {
-			msgToSend := &chatMessage.Message{
+			msgParaEnviar := &chatMessage.Message{
 				Id:        newMessage.MessageID.String(),
-				Sender:    newMessage.Sender.String(),
+				Sender:    newMessage.Sender.String() + "|" + senderUser.NickName,
 				Receiver:  newMessage.Receiver.String(),
 				Content:   newMessage.Content,
 				Status:    toProtoStatus(newMessage.Status),
 				Timestamp: timestamppb.New(newMessage.Timestamp),
 			}
-
-			_ = targetStream.Send(msgToSend)
+			_ = targetStream.Send(msgParaEnviar)
 		}
 	}
 
@@ -99,7 +130,6 @@ func (s *ChatMessageServer) SendMessage(ctx context.Context, message *chatMessag
 		Success:   true,
 		MessageId: newMessage.MessageID.String(),
 	}, nil
-
 }
 
 func (s *ChatMessageServer) UpdateStatus(ctx context.Context, req *chatMessage.UpdateStatusRequest) (*chatMessage.UpdateStatusResponse, error) {
@@ -132,15 +162,32 @@ func (s *ChatMessageServer) UpdateStatus(ctx context.Context, req *chatMessage.U
 }
 
 func (s *ChatMessageServer) GetHistory(ctx context.Context, req *chatMessage.GetHistoryRequest) (*chatMessage.HistoryResponse, error) {
-
 	senderID, err := uuid.Parse(req.SenderId)
 	if err != nil {
-		return nil, fmt.Errorf("ID do remetente com formato inválido: %w", err)
+		return nil, fmt.Errorf("ID do remetente inválido: %w", err)
 	}
 
 	receiverID, err := uuid.Parse(req.ReceiverId)
 	if err != nil {
-		return nil, fmt.Errorf("ID do destinatário com formato inválido: %w", err)
+		return nil, fmt.Errorf("ID do destinatário inválido: %w", err)
+	}
+
+	readMsgs, err := s.repo.MarkMessagesAsRead(receiverID, senderID)
+	if err != nil {
+		fmt.Printf("[Aviso] Erro ao marcar mensagens como read: %v\n", err)
+	} else {
+		for _, msg := range readMsgs {
+			s.mu.RLock()
+			senderStream, online := s.connections[msg.Sender]
+			s.mu.RUnlock()
+
+			if online {
+				_ = senderStream.Send(&chatMessage.Message{
+					Id:     msg.MessageID.String(),
+					Status: chatMessage.MessageStatus_READ,
+				})
+			}
+		}
 	}
 
 	historyDomain, err := s.repo.GetHistory(senderID, receiverID)
@@ -149,26 +196,21 @@ func (s *ChatMessageServer) GetHistory(ctx context.Context, req *chatMessage.Get
 	}
 
 	var grpcMessages []*chatMessage.Message
-
 	for _, dbMsg := range historyDomain {
-		grpcMsg := &chatMessage.Message{
+		grpcMessages = append(grpcMessages, &chatMessage.Message{
 			Id:        dbMsg.MessageID.String(),
 			Sender:    dbMsg.Sender.String(),
 			Receiver:  dbMsg.Receiver.String(),
 			Content:   dbMsg.Content,
 			Status:    toProtoStatus(dbMsg.Status),
 			Timestamp: timestamppb.New(dbMsg.Timestamp),
-		}
-		grpcMessages = append(grpcMessages, grpcMsg)
+		})
 	}
 
-	return &chatMessage.HistoryResponse{
-		Messages: grpcMessages,
-	}, nil
+	return &chatMessage.HistoryResponse{Messages: grpcMessages}, nil
 }
 
 func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream chatMessage.ChatMessageService_ChatStreamServer) error {
-
 	ctx := stream.Context()
 
 	userID, err := uuid.Parse(req.UserId)
@@ -180,9 +222,24 @@ func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream ch
 	s.connections[userID] = stream
 	s.mu.Unlock()
 
-	err = s.cache.SetUserOnline(ctx, userID)
+	s.cache.SetUserOnline(ctx, userID)
+
+	deliveredMsgs, err := s.repo.MarkMessagesAsDelivered(userID)
 	if err != nil {
-		fmt.Printf("[Aviso] Falha ao setar usuário online no Redis: %v\n", err)
+		fmt.Printf("[Aviso] Erro ao marcar mensagens como delivered: %v\n", err)
+	} else {
+		for _, msg := range deliveredMsgs {
+			s.mu.RLock()
+			senderStream, online := s.connections[msg.Sender]
+			s.mu.RUnlock()
+
+			if online {
+				_ = senderStream.Send(&chatMessage.Message{
+					Id:     msg.MessageID.String(),
+					Status: chatMessage.MessageStatus_DELIVERED,
+				})
+			}
+		}
 	}
 
 	fmt.Printf("Usuário conectado: %s\n", userID.String())
@@ -199,15 +256,10 @@ func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream ch
 
 	for {
 		select {
-
 		case <-ctx.Done():
 			return nil
-
 		case <-ticker.C:
-			err := s.cache.KeepAlive(ctx, userID)
-			if err != nil {
-				fmt.Printf("[Aviso] Falha ao renovar TTL no Redis para %s\n", userID.String())
-			}
+			s.cache.KeepAlive(ctx, userID)
 		}
 	}
 }
@@ -215,16 +267,18 @@ func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream ch
 // Auxiliares  (Só para não embolar)
 
 func toDomainStatus(protoStatus chatMessage.MessageStatus) domain.MessageStatus {
-
 	name, thereIs := chatMessage.MessageStatus_name[int32(protoStatus)]
 	if !thereIs {
-		return domain.MessageStatus("SENT")
+		return domain.MessageStatus("sent")
 	}
-	return domain.MessageStatus(name)
+
+	nomeMinusculo := strings.ToLower(name)
+	return domain.MessageStatus(nomeMinusculo)
 }
 
 func toProtoStatus(domainStatus domain.MessageStatus) chatMessage.MessageStatus {
-	valueInt, thereIs := chatMessage.MessageStatus_value[string(domainStatus)]
+	upper := strings.ToUpper(string(domainStatus))
+	valueInt, thereIs := chatMessage.MessageStatus_value[upper]
 	if !thereIs {
 		return chatMessage.MessageStatus_SENT
 	}
