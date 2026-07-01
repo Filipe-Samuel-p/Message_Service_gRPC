@@ -31,3 +31,19 @@
 2026/06/18 19:42:19.629750 [AUDITORIA] Usuário conectado (Stream Inciado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
 2026/06/18 19:44:12.674650 [AUDITORIA] Usuário desconectado (Stream Encerrado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
 2026/06/18 19:44:16.364734 [AUDITORIA] Usuário desconectado (Stream Encerrado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/24 09:28:33.628155 ========================================
+2026/06/24 09:28:33.628354 [SISTEMA] Servidor gRPC inicializando
+2026/06/24 09:28:33.628387 ========================================
+2026/06/24 09:28:33.641986 Error on database conection. Error:  pq: password authentication failed for user "postgres_whatsapp" (28P01)
+2026/06/24 09:36:45.397519 ========================================
+2026/06/24 09:36:45.397630 [SISTEMA] Servidor gRPC inicializando
+2026/06/24 09:36:45.397642 ========================================
+2026/06/24 09:36:45.398535 Error on database conection. Error:  dial tcp 127.0.0.1:5432: connect: connection refused
+2026/06/24 09:40:24.527370 ========================================
+2026/06/24 09:40:24.527691 [SISTEMA] Servidor gRPC inicializando
+2026/06/24 09:40:24.527705 ========================================
+2026/06/24 09:40:24.575734 [SISTEMA] Servidor rodando na porta :9090
+2026/06/24 09:41:21.938846 [AUDITORIA] Usuário conectado (Stream Inciado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/24 09:41:35.301910 [AUDITORIA] Usuário conectado (Stream Inciado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/24 09:44:42.920723 [AUDITORIA] Usuário desconectado (Stream Encerrado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/24 09:44:44.450672 [AUDITORIA] Usuário desconectado (Stream Encerrado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
