@@ -1,0 +1,49 @@
+2026/06/17 21:07:53.064670 ========================================
+2026/06/17 21:07:53.064753 [SISTEMA] Servidor gRPC inicializando
+2026/06/17 21:07:53.064761 ========================================
+2026/06/17 21:07:53.083207 [SISTEMA] Servidor rodando na porta :9090
+2026/06/17 21:08:12.752797 [AUDITORIA] Usuário conectado (Stream Inciado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/17 21:08:18.756333 [AUDITORIA] Usuário conectado (Stream Inciado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/18 02:03:32.822718 [AUDITORIA] Usuário desconectado (Stream Encerrado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/18 18:35:55.452089 ========================================
+2026/06/18 18:35:55.454303 [SISTEMA] Servidor gRPC inicializando
+2026/06/18 18:35:55.454311 ========================================
+2026/06/18 18:35:55.463581 Error on database conection. Error:  pq: password authentication failed for user "postgres_whatsapp" (28P01)
+2026/06/18 18:39:33.385042 ========================================
+2026/06/18 18:39:33.385171 [SISTEMA] Servidor gRPC inicializando
+2026/06/18 18:39:33.385181 ========================================
+2026/06/18 18:39:33.430835 [SISTEMA] Servidor rodando na porta :9090
+2026/06/18 18:42:27.806058 [AUDITORIA] Usuário conectado (Stream Inciado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/18 18:42:35.020606 [AUDITORIA] Usuário conectado (Stream Inciado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/18 18:43:20.331104 ========================================
+2026/06/18 18:43:20.331207 [SISTEMA] Servidor gRPC inicializando
+2026/06/18 18:43:20.331217 ========================================
+2026/06/18 18:43:20.366103 [SISTEMA] Servidor rodando na porta :9090
+2026/06/18 18:43:24.576624 [AUDITORIA] Usuário conectado (Stream Inciado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/18 18:43:26.579756 [AUDITORIA] Usuário conectado (Stream Inciado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/18 19:41:19.917352 [AUDITORIA] Usuário desconectado (Stream Encerrado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/18 19:41:21.568636 [AUDITORIA] Usuário desconectado (Stream Encerrado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/18 19:41:58.720341 ========================================
+2026/06/18 19:41:58.720445 [SISTEMA] Servidor gRPC inicializando
+2026/06/18 19:41:58.720456 ========================================
+2026/06/18 19:41:58.733807 [SISTEMA] Servidor rodando na porta :9090
+2026/06/18 19:42:11.559417 [AUDITORIA] Usuário conectado (Stream Inciado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/18 19:42:19.629750 [AUDITORIA] Usuário conectado (Stream Inciado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/18 19:44:12.674650 [AUDITORIA] Usuário desconectado (Stream Encerrado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/18 19:44:16.364734 [AUDITORIA] Usuário desconectado (Stream Encerrado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/24 09:28:33.628155 ========================================
+2026/06/24 09:28:33.628354 [SISTEMA] Servidor gRPC inicializando
+2026/06/24 09:28:33.628387 ========================================
+2026/06/24 09:28:33.641986 Error on database conection. Error:  pq: password authentication failed for user "postgres_whatsapp" (28P01)
+2026/06/24 09:36:45.397519 ========================================
+2026/06/24 09:36:45.397630 [SISTEMA] Servidor gRPC inicializando
+2026/06/24 09:36:45.397642 ========================================
+2026/06/24 09:36:45.398535 Error on database conection. Error:  dial tcp 127.0.0.1:5432: connect: connection refused
+2026/06/24 09:40:24.527370 ========================================
+2026/06/24 09:40:24.527691 [SISTEMA] Servidor gRPC inicializando
+2026/06/24 09:40:24.527705 ========================================
+2026/06/24 09:40:24.575734 [SISTEMA] Servidor rodando na porta :9090
+2026/06/24 09:41:21.938846 [AUDITORIA] Usuário conectado (Stream Inciado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4
+2026/06/24 09:41:35.301910 [AUDITORIA] Usuário conectado (Stream Inciado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/24 09:44:42.920723 [AUDITORIA] Usuário desconectado (Stream Encerrado): 9fe9aa6d-e06b-4d75-b7ea-f1e3496b4d38
+2026/06/24 09:44:44.450672 [AUDITORIA] Usuário desconectado (Stream Encerrado): 1c38e81f-ea8e-4394-88f5-5fc6e56f17b4

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 	"time"
@@ -91,6 +92,15 @@ func (s *ChatMessageServer) SendMessage(ctx context.Context, message *chatMessag
 		return nil, fmt.Errorf("erro no parse do receiverId: %w", err)
 	}
 
+	_, err = s.repo.GetUserByID(receiverId)
+	if err != nil {
+
+		log.Printf("[AVISO] Tentativa de envio para usuário não cadastrado. Destinatário: %s", receiverId.String())
+		return &chatMessage.SendMessageResponse{
+			Success: false,
+		}, nil
+	}
+
 	senderUser, _ := s.repo.GetUserByID(senderId)
 
 	newMessage := domain.Message{
@@ -102,7 +112,7 @@ func (s *ChatMessageServer) SendMessage(ctx context.Context, message *chatMessag
 
 	newMessage, err = s.repo.SaveMessage(newMessage)
 	if err != nil {
-		fmt.Printf("ERRO POSTGRES: %v\n", err)
+		log.Printf("[ERRO] Falha ao salvar mensagem no Postgres: %v", err)
 		return &chatMessage.SendMessageResponse{Success: false}, nil
 	}
 
@@ -174,7 +184,8 @@ func (s *ChatMessageServer) GetHistory(ctx context.Context, req *chatMessage.Get
 
 	readMsgs, err := s.repo.MarkMessagesAsRead(receiverID, senderID)
 	if err != nil {
-		fmt.Printf("[Aviso] Erro ao marcar mensagens como read: %v\n", err)
+		// Atualizado para manter o padrão
+		log.Printf("[AVISO] Erro ao marcar mensagens como read: %v", err)
 	} else {
 		for _, msg := range readMsgs {
 			s.mu.RLock()
@@ -218,6 +229,16 @@ func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream ch
 		return fmt.Errorf("ID de usuário inválido: %w", err)
 	}
 
+	s.mu.RLock()
+	_, alreadyConnected := s.connections[userID]
+	s.mu.RUnlock()
+
+	if alreadyConnected {
+
+		log.Printf("[AUDITORIA - ALERTA] Tentativa de login simultâneo bloqueada para o UUID: %s", userID.String())
+		return fmt.Errorf("acesso negado: este usuário já possui uma sessão ativa em outro terminal")
+	}
+
 	s.mu.Lock()
 	s.connections[userID] = stream
 	s.mu.Unlock()
@@ -226,7 +247,7 @@ func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream ch
 
 	deliveredMsgs, err := s.repo.MarkMessagesAsDelivered(userID)
 	if err != nil {
-		fmt.Printf("[Aviso] Erro ao marcar mensagens como delivered: %v\n", err)
+		log.Printf("[AVISO] Erro ao marcar mensagens como delivered para usuário %s: %v", userID.String(), err)
 	} else {
 		for _, msg := range deliveredMsgs {
 			s.mu.RLock()
@@ -239,16 +260,27 @@ func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream ch
 					Status: chatMessage.MessageStatus_DELIVERED,
 				})
 			}
+
+			senderUser, _ := s.repo.GetUserByID(msg.Sender)
+			_ = stream.Send(&chatMessage.Message{
+				Id:        msg.MessageID.String(),
+				Sender:    msg.Sender.String() + "|" + senderUser.NickName,
+				Receiver:  msg.Receiver.String(),
+				Content:   msg.Content,
+				Status:    toProtoStatus(msg.Status),
+				Timestamp: timestamppb.New(msg.Timestamp),
+			})
 		}
 	}
 
-	fmt.Printf("Usuário conectado: %s\n", userID.String())
+	log.Printf("[AUDITORIA] Usuário conectado (Stream Inciado): %s", userID.String())
 
 	defer func() {
 		s.mu.Lock()
 		delete(s.connections, userID)
 		s.mu.Unlock()
-		fmt.Printf("Usuário desconectado: %s\n", userID.String())
+
+		log.Printf("[AUDITORIA] Usuário desconectado (Stream Encerrado): %s", userID.String())
 	}()
 
 	ticker := time.NewTicker(30 * time.Second)
@@ -264,7 +296,7 @@ func (s *ChatMessageServer) ChatStream(req *chatMessage.StreamRequest, stream ch
 	}
 }
 
-// Auxiliares  (Só para não embolar)
+// Auxiliares
 
 func toDomainStatus(protoStatus chatMessage.MessageStatus) domain.MessageStatus {
 	name, thereIs := chatMessage.MessageStatus_name[int32(protoStatus)]
